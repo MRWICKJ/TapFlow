@@ -41,3 +41,6 @@ export const findTransactionBySenderId = async (id: string) => {
     }
   });
 };
+export const GetAllTransactions = async () => {
+  return prisma.transaction.findMany();
+}

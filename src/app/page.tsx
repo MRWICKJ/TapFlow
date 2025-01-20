@@ -1,101 +1,248 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import { ShieldCheck, Globe, Zap, Laugh } from "lucide-react";
+import { useState, useEffect } from "react";
+
+export default function HomePage() {
+  const [randomMoney, setRandomMoney] = useState<string | null>(null);
+  const [activeUser, setActiveUser] = useState<string | null>(null);
+  const [transactionAmount, setTransactionAmount] = useState<string | null>(null);
+
+  function generateRandomMoney(inputString: string) {
+    const hash = Array.from(inputString).reduce(
+      (acc, char) => acc + char.charCodeAt(0),
+      0
+    );
+    const randomAmount = hash % 10000; // Generates a random amount up to 100.00
+    setRandomMoney(randomAmount.toFixed(2));
+  }
+  async function fetchActiveUsers() {
+    try {
+      const response = await fetch("/api/user/findAll",{next:{revalidate:60}});
+      if (!response.ok) {
+        throw new Error("Failed to fetch Users");
+      }
+      const data = await response.json();
+      setActiveUser(data.length);
+    } catch (error) {
+      console.error("Failed to fetch active users", error);
+    }
+  }
+  async function fetchTransactions() {
+    try {
+      const response = await fetch("/api/transaction/findAll",{next:{revalidate:30}});
+      if (!response.ok) {
+        throw new Error("Failed to fetch Transactions");
+      }
+      const data = await response.json();
+      let amount = 0;
+      data.forEach((transaction: { amount: number }) => {
+        amount += transaction.amount;
+      });
+      setTransactionAmount(amount.toFixed(2));
+    } catch (error) {
+      console.error("Failed to fetch active users", error);
+    }
+  }
+  useEffect(() => {
+    fetchActiveUsers();
+    fetchTransactions();
+  }, []);
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-6 space-y-10">
+      {/* Introduction Section */}
+      <section className="w-full max-w-4xl text-center space-y-6">
+        <h2 className="text-2xl font-semibold">
+          Send and Receive Money Effortlessly
+        </h2>
+        <p className="text-muted-foreground">
+          TapFlow makes sending and receiving money fast, secure, and simple.
+          With state-of-the-art encryption and fraud protection, your
+          transactions are always safe.
+        </p>
+      </section>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+      {/* Random Money Generator */}
+      <section className="w-full max-w-4xl flex flex-col items-center space-y-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Generate Random Money</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input
+              placeholder="Enter a string to generate random money"
+              onChange={(e) => generateRandomMoney(e.target.value)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {randomMoney && (
+              <p className="text-lg font-medium">
+                Generated Amount:{" "}
+                <span className="text-primary">${randomMoney}</span>
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+       {/* Statistics Section */}
+       <section className="w-full max-w-4xl space-y-8 text-center">
+        <h3 className="text-xl font-semibold">TapFlow in Numbers</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardContent className="p-4">
+              <h4 className="text-2xl font-bold">{activeUser}</h4>
+              <p className="text-muted-foreground">Total Users</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <h4 className="text-2xl font-bold">${transactionAmount}</h4>
+              <p className="text-muted-foreground">Total Transactions</p>
+            </CardContent>
+          </Card>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+
+      {/* Features Section */}
+      <section className="w-full max-w-4xl space-y-8">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold">Why Choose TapFlow?</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="flex items-center space-x-2">
+              <Zap className="h-6 w-6 text-indigo-400" />
+              <CardTitle>Fast Transactions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                With TapFlow, you can send money to anyone, anywhere in the
+                world, in just seconds.
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex items-center space-x-2">
+              <ShieldCheck className="h-6 w-6 text-emerald-500" />
+              <CardTitle>Advanced Security</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                Your security is our priority. TapFlow uses advanced encryption
+                to keep your money safe.
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex items-center space-x-2">
+              <Laugh className="h-6 w-6 text-amber-500" />
+              <CardTitle>Easy to Use</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                Our intuitive interface ensures you can manage your transactions
+                with ease.
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex items-center space-x-2">
+              <Globe className="h-6 w-6 text-blue-600" />
+              <CardTitle>Global Reach</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Send and receive money across borders with no hassle.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Accordion Section */}
+      <section className="w-full max-w-4xl space-y-6">
+        <h3 className="text-xl font-semibold text-center">
+          Learn More About TapFlow
+        </h3>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger>What is TapFlow?</AccordionTrigger>
+            <AccordionContent>
+              TapFlow is a modern payment solution that allows you to send and
+              receive money globally with ease and security.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionTrigger>How secure is TapFlow?</AccordionTrigger>
+            <AccordionContent>
+              We use advanced encryption and fraud detection technologies to
+              ensure that your transactions are secure at all times.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-3">
+            <AccordionTrigger>
+              Can I use TapFlow internationally?
+            </AccordionTrigger>
+            <AccordionContent>
+              Yes, TapFlow supports international transactions, allowing you to
+              send and receive money across borders seamlessly.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
+
+     
+      {/* Additional Section: Testimonials */}
+      <section className="w-full max-w-4xl text-center space-y-6">
+        <h3 className="text-xl font-semibold">What Our Users Say</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardContent className="p-4">
+              <p className="italic">
+                “TapFlow has made my life so much easier. Transactions are quick
+                and secure!”
+              </p>
+              <p className="text-muted-foreground mt-4">- Alex, Freelancer</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="italic">
+                “I love how simple it is to use TapFlow. Highly recommended!”
+              </p>
+              <p className="text-muted-foreground mt-4">
+                - Priya, Entrepreneur
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="italic">
+                “The best payment app I’ve ever used. Global reach and security
+                are top-notch.”
+              </p>
+              <p className="text-muted-foreground mt-4">
+                - Marco, Business Owner
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Call-to-Action Section */}
+      <section className="w-full max-w-4xl text-center space-y-6">
+        <h3 className="text-xl font-semibold">
+          Get Started with TapFlow Today!
+        </h3>
+        <Button size="lg">Download the App</Button>
+      </section>
     </div>
   );
 }
