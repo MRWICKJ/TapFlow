@@ -8,6 +8,7 @@ export const getAllUsers = async () => {
   return prisma.user.findMany();
 };
 export const createUser = async (data: {
+  user_id: string;
   first_name: string;
   last_name: string;
   email_id: string;

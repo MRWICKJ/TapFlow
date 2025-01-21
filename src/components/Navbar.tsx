@@ -6,6 +6,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import Link from "next/link";
 import { Menu, Webhook, X } from "lucide-react";
 import { useState } from "react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,19 +25,34 @@ export function Header() {
         {/* Navigation Links */}
         <nav className="hidden md:flex space-x-6">
           <Link href="/">
-            <span className="text-muted-foreground hover:text-foreground">Home</span>
+            <span className="text-muted-foreground hover:text-foreground">
+              Home
+            </span>
+          </Link>
+          <Link href="/dashboard">
+            <span className="text-muted-foreground hover:text-foreground">
+              Dashboard
+            </span>
           </Link>
           <Link href="/features">
-            <span className="text-muted-foreground hover:text-foreground">Features</span>
+            <span className="text-muted-foreground hover:text-foreground">
+              Features
+            </span>
           </Link>
           <Link href="/pricing">
-            <span className="text-muted-foreground hover:text-foreground">Pricing</span>
+            <span className="text-muted-foreground hover:text-foreground">
+              Pricing
+            </span>
           </Link>
           <Link href="/about">
-            <span className="text-muted-foreground hover:text-foreground">About</span>
+            <span className="text-muted-foreground hover:text-foreground">
+              About
+            </span>
           </Link>
           <Link href="/contact">
-            <span className="text-muted-foreground hover:text-foreground">Contact</span>
+            <span className="text-muted-foreground hover:text-foreground">
+              Contact
+            </span>
           </Link>
         </nav>
 
@@ -45,17 +61,24 @@ export function Header() {
           <ModeToggle />
 
           {/* Call to Action - Hidden on Mobile */}
-          <div>
-            <Button asChild>
-              <Link href="/sign-in">Login</Link>
-            </Button>
-          </div>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+          <SignedOut>
+            <Link href="/sign-in">
+              <Button>Login</Button>
+            </Link>
+          </SignedOut>
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center justify-end px-6">
-          <Button variant="outline" size="sm" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X/> : <Menu/>}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X /> : <Menu />}
           </Button>
         </div>
       </div>
@@ -65,19 +88,34 @@ export function Header() {
         <div className="md:hidden sticky top-full right-0 w-full bg-background/80 backdrop-blur-md shadow-md py-4 px-6 z-50 pr-8">
           <nav className="flex flex-col space-y-4 items-end">
             <Link href="/">
-              <span className="text-muted-foreground hover:text-foreground">Home</span>
+              <span className="text-muted-foreground hover:text-foreground">
+                Home
+              </span>
+            </Link>
+            <Link href="/dashboard">
+              <span className="text-muted-foreground hover:text-foreground">
+                Dashboard
+              </span>
             </Link>
             <Link href="/features">
-              <span className="text-muted-foreground hover:text-foreground">Features</span>
+              <span className="text-muted-foreground hover:text-foreground">
+                Features
+              </span>
             </Link>
             <Link href="/pricing">
-              <span className="text-muted-foreground hover:text-foreground">Pricing</span>
+              <span className="text-muted-foreground hover:text-foreground">
+                Pricing
+              </span>
             </Link>
             <Link href="/about">
-              <span className="text-muted-foreground hover:text-foreground">About</span>
+              <span className="text-muted-foreground hover:text-foreground">
+                About
+              </span>
             </Link>
             <Link href="/contact">
-              <span className="text-muted-foreground hover:text-foreground">Contact</span>
+              <span className="text-muted-foreground hover:text-foreground">
+                Contact
+              </span>
             </Link>
           </nav>
         </div>
