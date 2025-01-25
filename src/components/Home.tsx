@@ -18,8 +18,10 @@ export default function HomePage() {
   const [randomMoney, setRandomMoney] = useState<string | null>(null);
   const [activeUser, setActiveUser] = useState<string | null>(null);
   const [transactionAmount, setTransactionAmount] = useState<string | null>(null);
+  const [transactionCount, setTransactionCount] = useState<string | null>(null);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [loadingTransactionsCount, setLoadingTransactionsCount] = useState(true);
 
   function generateRandomMoney(inputString: string) {
     const hash = Array.from(inputString).reduce(
@@ -32,12 +34,12 @@ export default function HomePage() {
 
   async function fetchActiveUsers() {
     try {
-      const response = await fetch("/api/user/findAll", { next: { revalidate: 60 } });
+      const response = await fetch("/api/public/user/count", { next: { revalidate: 60 } });
       if (!response.ok) {
         throw new Error("Failed to fetch Users");
       }
-      const data = await response.json();
-      setActiveUser(data.length);
+      const {data} = await response.json();
+      setActiveUser(data);
     } catch (error) {
       console.error("Failed to fetch active users", error);
     } finally {
@@ -47,15 +49,11 @@ export default function HomePage() {
 
   async function fetchTransactions() {
     try {
-      const response = await fetch("/api/transaction/findAll", { next: { revalidate: 60 } });
+      const response = await fetch("/api/public/transaction/amount", { next: { revalidate: 60 } });
       if (!response.ok) {
         throw new Error("Failed to fetch Transactions");
       }
-      const data = await response.json();
-      let amount = 0;
-      data.forEach((transaction: { amount: number }) => {
-        amount += transaction.amount;
-      });
+      const {amount} = await response.json();
       setTransactionAmount(amount.toFixed(2));
     } catch (error) {
       console.error("Failed to fetch transactions", error);
@@ -63,10 +61,25 @@ export default function HomePage() {
       setLoadingTransactions(false);
     }
   }
+  async function fetchTransactionsCount() {
+    try {
+      const response = await fetch("/api/public/transaction/count", { next: { revalidate: 60 } });
+      if (!response.ok) {
+        throw new Error("Failed to fetch Transactions");
+      }
+      const {data} = await response.json();
+      setTransactionCount(data);
+    } catch (error) {
+      console.error("Failed to fetch transactions", error);
+    } finally {
+      setLoadingTransactionsCount(false);
+    }
+  }
 
   useEffect(() => {
     fetchActiveUsers();
     fetchTransactions();
+    fetchTransactionsCount();
   }, []);
 
   return (
@@ -108,7 +121,7 @@ export default function HomePage() {
       {/* Statistics Section */}
       <section className="w-full max-w-4xl space-y-8 text-center">
         <h3 className="text-xl font-semibold">TapFlow in Numbers</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardContent className="p-4">
               {loadingUsers ? (
@@ -127,6 +140,16 @@ export default function HomePage() {
                 <h4 className="text-2xl font-bold">${transactionAmount}</h4>
               )}
               <p className="text-muted-foreground">Total Transactions</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              {loadingTransactionsCount ? (
+                <Skeleton className="h-6 w-24" />
+              ) : (
+                <h4 className="text-2xl font-bold">{transactionCount}</h4>
+              )}
+              <p className="text-muted-foreground">Total Transactions Count</p>
             </CardContent>
           </Card>
         </div>

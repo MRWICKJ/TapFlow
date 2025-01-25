@@ -14,8 +14,10 @@ const isPublicRoute = createRouteMatcher([
 
 // Public API route matcher
 const isPublicApi = createRouteMatcher([
-  "/api/user/findAll",
-  "/api/transaction/findAll",
+  "/api/public/user/count",
+  "/api/public/transaction/count",
+  "/api/public/transaction/amount",
+
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -25,6 +27,11 @@ export default clerkMiddleware(async (auth, req) => {
 
   const isApiRequest = currentUrl.pathname.startsWith("/api");
   const isPublicApiRequest = isApiRequest && isPublicApi(req);
+  const isAuthPage = currentUrl.pathname.startsWith("/sign-in") || currentUrl.pathname.startsWith("/sign-up");
+
+  if (userId && isAuthPage) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
   if (isPublicApiRequest) {
     return NextResponse.next();

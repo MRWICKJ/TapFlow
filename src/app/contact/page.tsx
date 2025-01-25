@@ -14,7 +14,7 @@ export default function Page() {
         {/* Left Side: Image */}
         <div className="flex items-center justify-center">
           <Image
-            src="https://i.pinimg.com/originals/c4/b3/88/c4b3887ab7bd2e70f71465b943b27c21.gif" // Replace with your desired image URL
+            src="https://i.pinimg.com/originals/a9/b7/52/a9b7522224676f51d9610141b5e405be.gif" // Replace with your desired image URL
             alt="Contact Illustration"
             width={500}
             height={500}

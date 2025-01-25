@@ -12,7 +12,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 left-0 w-full bg-background/80 backdrop-blur-md shadow-md z-50">
+    <header suppressHydrationWarning className="sticky top-0 left-0 w-full bg-background/80 backdrop-blur-md shadow-md z-50">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
         {/* Logo Section */}
         <div className="flex items-center space-x-4">

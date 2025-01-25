@@ -18,3 +18,20 @@ export const createUser = async (data: {
     data,
   });
 };
+
+// src/components/dashboard-model.tsx
+export const getFullUser = async (user_id: string) => {
+  const user = await getUserById(user_id);
+  if (!user) {
+    return null;
+  }
+  const data = await prisma.user.findUnique({
+    where: { user_id },
+    include: {
+      account: true,
+      payerTransactions: true,
+      receiverTransactions: true,
+    },
+  });
+  return data;
+}

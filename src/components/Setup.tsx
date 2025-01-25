@@ -8,6 +8,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
+import { useRouter } from "next/navigation"; // Import for redirection
 
 interface PageProps {
   user_id: string;
@@ -27,10 +28,12 @@ export default function Setup({
   const [newUsername, setNewUsername] = useState<string>(username);
   const [amount, setAmount] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isActive, setIsActive] = useState<boolean>(true); // Add state for account status
+  const [isActive, setIsActive] = useState<boolean>(true);
+  const [currentTab, setCurrentTab] = useState<string>("createUser"); // State for tab navigation
   const { toast } = useToast();
+  const router = useRouter(); // Router instance for redirection
 
-  // Zod schema for validation
+  // Zod schemas for validation
   const createUserSchema = z.object({
     user_id: z.string().nonempty("User ID is required"),
     first_name: z.string().nonempty("First Name is required"),
@@ -43,16 +46,15 @@ export default function Setup({
     userId: z.string().nonempty("User ID is required"),
     balance: z
       .string()
-      .min(5, "Amount String must be at least 5 characters long")
-      .max(100, "Amount String must be at most 10 characters long"),
-    active: z.boolean(), // Add validation for active status
+      .min(5, "Amount must be at least 5 characters long")
+      .max(100, "Amount must be at most 10 characters long"),
+    active: z.boolean(),
   });
 
   const handleCreateUser = async () => {
     setIsSubmitting(true);
 
     try {
-      // Validate input data
       const validatedData = createUserSchema.parse({
         user_id,
         first_name,
@@ -61,7 +63,6 @@ export default function Setup({
         email_id,
       });
 
-      // Make API request
       const response = await fetch("/api/user/create", {
         method: "POST",
         headers: {
@@ -70,16 +71,18 @@ export default function Setup({
         body: JSON.stringify(validatedData),
       });
 
-      const result = await response.json();
-      toast({
-        title: "Success",
-        description: "User created successfully!",
-        variant: "default",
-      });
-      console.log(result);
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "User created successfully!",
+          variant: "default",
+        });
+        setCurrentTab("createAccount"); // Automatically switch to the next tab
+      } else {
+        throw new Error("Failed to create user");
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        // Display validation errors
         error.errors.forEach((err) =>
           toast({
             title: "Validation Error",
@@ -93,7 +96,6 @@ export default function Setup({
           description: "An error occurred while creating the user.",
           variant: "destructive",
         });
-        console.error(error);
       }
     } finally {
       setIsSubmitting(false);
@@ -104,14 +106,12 @@ export default function Setup({
     setIsSubmitting(true);
 
     try {
-      // Validate account data
       const validatedData = createAccountSchema.parse({
-        userId:user_id,
-        balance:amount,
-        active:isActive, // Include the account status
+        userId: user_id,
+        balance: amount,
+        active: isActive,
       });
 
-      // Make API request
       const response = await fetch("/api/account/create", {
         method: "POST",
         headers: {
@@ -120,16 +120,18 @@ export default function Setup({
         body: JSON.stringify(validatedData),
       });
 
-      const result = await response.json();
-      toast({
-        title: "Success",
-        description: "Account created successfully!",
-        variant: "default",
-      });
-      console.log(result);
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Account created successfully!",
+          variant: "default",
+        });
+        router.push("/dashboard"); // Redirect to dashboard after completion
+      } else {
+        throw new Error("Failed to create account");
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        // Display validation errors
         error.errors.forEach((err) =>
           toast({
             title: "Validation Error",
@@ -143,7 +145,6 @@ export default function Setup({
           description: "An error occurred while creating the account.",
           variant: "destructive",
         });
-        console.error(error);
       }
     } finally {
       setIsSubmitting(false);
@@ -152,129 +153,114 @@ export default function Setup({
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-6 space-y-10">
-      {/* Tabs Section */}
       <section className="w-full max-w-4xl">
-        <Tabs defaultValue="createUser" className="w-full">
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
           <TabsList>
             <TabsTrigger value="createUser">Create User</TabsTrigger>
             <TabsTrigger value="createAccount">Create Account</TabsTrigger>
           </TabsList>
 
-          {/* Create User Tab */}
           <TabsContent value="createUser">
             <Card>
               <CardHeader>
                 <CardTitle>Create User</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div>
-                    <Label htmlFor="user_id">User ID</Label>
-                    <Input
-                      value={user_id}
-                      id="user_id"
-                      readOnly
-                      placeholder="User ID"
-                      className="cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="first_name">First Name</Label>
-                    <Input
-                      value={first_name}
-                      id="first_name"
-                      readOnly
-                      placeholder="First Name"
-                      className="cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="last_name">Last Name</Label>
-                    <Input
-                      value={last_name}
-                      id="last_name"
-                      readOnly
-                      placeholder="Last Name"
-                      className="cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email_id">Email ID</Label>
-                    <Input
-                      value={email_id}
-                      id="email_id"
-                      readOnly
-                      placeholder="Email ID"
-                      className="cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="username">
-                      Username{" "}
-                      <span className="text-emerald-500">(Editable)</span>
-                    </Label>
-                    <Input
-                      value={newUsername}
-                      id="username"
-                      onChange={(e) => setNewUsername(e.target.value)}
-                      placeholder="Enter new username"
-                    />
-                  </div>
-
-                  <Button
-                    onClick={handleCreateUser}
-                    disabled={isSubmitting}
-                    className="mt-4"
-                    size="lg"
-                  >
-                    {isSubmitting ? "Creating..." : "Create"}
-                  </Button>
+                <div>
+                  <Label htmlFor="user_id">User ID</Label>
+                  <Input
+                    value={user_id}
+                    id="user_id"
+                    readOnly
+                    className="cursor-not-allowed"
+                  />
                 </div>
+                <div>
+                  <Label htmlFor="first_name">First Name</Label>
+                  <Input
+                    value={first_name}
+                    id="first_name"
+                    readOnly
+                    className="cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="last_name">Last Name</Label>
+                  <Input
+                    value={last_name}
+                    id="last_name"
+                    readOnly
+                    className="cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email_id">Email ID</Label>
+                  <Input
+                    value={email_id}
+                    id="email_id"
+                    readOnly
+                    className="cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="username">Username (Editable)</Label>
+                  <Input
+                    value={newUsername}
+                    id="username"
+                    onChange={(e) => setNewUsername(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleCreateUser}
+                  disabled={isSubmitting}
+                  size="lg"
+                >
+                  {isSubmitting ? "Creating..." : "Create User"}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Create Account Tab */}
           <TabsContent value="createAccount">
             <Card>
               <CardHeader>
                 <CardTitle>Create Account</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div>
-                    <Label htmlFor="user_id">User ID</Label>
-                    <Input
-                      value={user_id}
-                      id="user_id"
-                      readOnly
-                      placeholder="User ID"
-                      className="cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="amount">Amount</Label>
-                    <Input
-                      value={amount}
-                      id="amount"
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder="Enter amount"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="isActive" checked={isActive} onCheckedChange={(checked) => setIsActive(checked === true)} />
-                    <Label htmlFor="isActive">Account Activate</Label>
-                  </div>
-
-                  <Button
-                    onClick={handleCreateAccount}
-                    disabled={isSubmitting}
-                    className="mt-4"
-                    size="lg"
-                  >
-                    {isSubmitting ? "Creating..." : "Create Account"}
-                  </Button>
+                <div>
+                  <Label htmlFor="user_id">User ID</Label>
+                  <Input
+                    value={user_id}
+                    id="user_id"
+                    readOnly
+                    className="cursor-not-allowed"
+                  />
                 </div>
+                <div>
+                  <Label htmlFor="amount">Amount</Label>
+                  <Input
+                    value={amount}
+                    id="amount"
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={(checked) =>
+                      setIsActive(checked === true)
+                    }
+                  />
+                  <Label htmlFor="isActive">Account Activate</Label>
+                </div>
+                <Button
+                  onClick={handleCreateAccount}
+                  disabled={isSubmitting}
+                  size="lg"
+                >
+                  {isSubmitting ? "Creating..." : "Create Account"}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
