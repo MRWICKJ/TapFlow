@@ -38,7 +38,7 @@ export default function DashboardModel({ profile }: { profile: Profile }) {
   const [fullProfile, setFullProfile] = useState<Profile | null>(null);
   const [balanceVisible, setBalanceVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [fullUserList, setFullUserList] = useState<Profile[]>([]); // Store all users
+  // const [fullUserList, setFullUserList] = useState<Profile[]>([]); // Store all users
   const [filteredUserList, setFilteredUserList] = useState<Profile[]>([]); // Store filtered users
   const [loading, setLoading] = useState(false);
 
@@ -59,7 +59,7 @@ export default function DashboardModel({ profile }: { profile: Profile }) {
       const response = await fetch(`/api/user/findAll`);
       const results = await response.json();
 
-      setFullUserList(results); // Store all users
+      // setFullUserList(results); // Store all users
       filterUsers(results); // Filter users based on the search query
     } catch {
       toast({
@@ -178,8 +178,8 @@ export default function DashboardModel({ profile }: { profile: Profile }) {
                 ]
                   .sort(
                     (a, b) =>
-                      new Date(b.createdAt).getTime() -
-                      new Date(a.createdAt).getTime()
+                      new Date(b?.createdAt).getTime() -
+                      new Date(a?.createdAt).getTime()
                   ) // Sort by most recent
                   .map((tx, index) => {
                     const isPayer =
