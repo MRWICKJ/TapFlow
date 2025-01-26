@@ -7,60 +7,45 @@ import Link from "next/link";
 import { Menu, Webhook, X } from "lucide-react";
 import { useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
+
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Link href={href}>
+      <span className={`
+        ${isActive(href) 
+          ? 'text-foreground font-semibold text-indigo-600' 
+          : 'text-muted-foreground hover:text-foreground'}
+      `}>
+        {children}
+      </span>
+    </Link>
+  );
 
   return (
     <header suppressHydrationWarning className="sticky top-0 left-0 w-full bg-background/80 backdrop-blur-md shadow-md z-50">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
-        {/* Logo Section */}
         <div className="flex items-center space-x-4">
           <Webhook className="h-6 w-6 text-indigo-600 inline-block" />
-          <Link href="/">
-            <span className="text-xl font-bold text-primary">TapFlow</span>
-          </Link>
+          <NavLink href="/">TapFlow</NavLink>
         </div>
 
-        {/* Navigation Links */}
         <nav className="hidden md:flex space-x-6">
-          <Link href="/">
-            <span className="text-muted-foreground hover:text-foreground">
-              Home
-            </span>
-          </Link>
-          <Link href="/dashboard">
-            <span className="text-muted-foreground hover:text-foreground">
-              Dashboard
-            </span>
-          </Link>
-          <Link href="/features">
-            <span className="text-muted-foreground hover:text-foreground">
-              Features
-            </span>
-          </Link>
-          <Link href="/pricing">
-            <span className="text-muted-foreground hover:text-foreground">
-              Pricing
-            </span>
-          </Link>
-          <Link href="/about">
-            <span className="text-muted-foreground hover:text-foreground">
-              About
-            </span>
-          </Link>
-          <Link href="/contact">
-            <span className="text-muted-foreground hover:text-foreground">
-              Contact
-            </span>
-          </Link>
+          <NavLink href="/">Home</NavLink>
+          <NavLink href="/dashboard">Dashboard</NavLink>
+          <NavLink href="/features">Features</NavLink>
+          <NavLink href="/pricing">Pricing</NavLink>
+          <NavLink href="/about">About</NavLink>
+          <NavLink href="/contact">Contact</NavLink>
         </nav>
 
-        {/* Theme Toggle */}
         <div className="flex items-center space-x-4">
           <ModeToggle />
-
-          {/* Call to Action - Hidden on Mobile */}
           <SignedIn>
             <UserButton />
           </SignedIn>
@@ -71,7 +56,6 @@ export function Header() {
           </SignedOut>
         </div>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center justify-end px-6">
           <Button
             variant="outline"
@@ -83,40 +67,15 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden sticky top-full right-0 w-full bg-background/80 backdrop-blur-md shadow-md py-4 px-6 z-50 pr-8">
           <nav className="flex flex-col space-y-4 items-end">
-            <Link href="/">
-              <span className="text-muted-foreground hover:text-foreground">
-                Home
-              </span>
-            </Link>
-            <Link href="/dashboard">
-              <span className="text-muted-foreground hover:text-foreground">
-                Dashboard
-              </span>
-            </Link>
-            <Link href="/features">
-              <span className="text-muted-foreground hover:text-foreground">
-                Features
-              </span>
-            </Link>
-            <Link href="/pricing">
-              <span className="text-muted-foreground hover:text-foreground">
-                Pricing
-              </span>
-            </Link>
-            <Link href="/about">
-              <span className="text-muted-foreground hover:text-foreground">
-                About
-              </span>
-            </Link>
-            <Link href="/contact">
-              <span className="text-muted-foreground hover:text-foreground">
-                Contact
-              </span>
-            </Link>
+            <NavLink href="/">Home</NavLink>
+            <NavLink href="/dashboard">Dashboard</NavLink>
+            <NavLink href="/features">Features</NavLink>
+            <NavLink href="/pricing">Pricing</NavLink>
+            <NavLink href="/about">About</NavLink>
+            <NavLink href="/contact">Contact</NavLink>
           </nav>
         </div>
       )}
