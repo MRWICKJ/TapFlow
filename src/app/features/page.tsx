@@ -18,7 +18,7 @@ export default function page() {
       <section className="w-full max-w-4xl text-center space-y-6">
         <h1 className="text-3xl font-bold">Explore Our Features</h1>
         <p className="text-muted-foreground">
-          Discover what makes our application stand out from the crowd. From seamless integration to advanced analytics, we've got you covered.
+          Discover what makes our application stand out from the crowd. From seamless integration to advanced analytics, we&apos;ve got you covered.
         </p>
       </section>
 

@@ -4,7 +4,8 @@ import { createAccount } from "@/app/services/account/accountService";
 export async function POST(req:NextRequest) {
     try {
         const body = await req.json();
-        let { balance, active, userId } = body;
+        const { active, userId } = body;
+        let  {balance} = body;
         balance = generateBalance(body.balance);
         const newAccount = await createAccount({
             balance,
