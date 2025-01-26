@@ -7,6 +7,10 @@ WORKDIR /src
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+COPY /prisma ./
+
+COPY /public ./
+
 # Install dependencies
 RUN npm install
 
