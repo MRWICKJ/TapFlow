@@ -11,6 +11,8 @@ import { ArrowDown, ArrowUp, SendHorizonal } from "lucide-react";
 import Link from "next/link";
 
 interface Transaction {
+  receiverId: string;
+  senderId: string;
   id: string;
   amount: number;
   createdAt: string;
@@ -207,7 +209,9 @@ export default function DashboardModel({ profile }: { profile: Profile }) {
                           </p>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {tx.description || "No description provided."}
+                        <span className="text-xs text-muted-foreground">
+                          {isPayer ? `Payer ID: ${tx.senderId}` : `Receiver ID: ${tx.receiverId}`}
+                        </span>
                         </p>
                       </div>
                     );

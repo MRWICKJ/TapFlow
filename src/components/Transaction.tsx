@@ -18,6 +18,7 @@ export default function MoneySendingPage({ receiverId }: { receiverId: string })
   const [amount, setAmount] = useState<string>("");
   const [isConfirmed, setIsConfirmed] = useState(false);
   const { toast } = useToast(); // Toast for notifications
+  const [isLoading, setIsLoading] = useState(false); // State for loading status
 
   // Fetch the receiver's ID from params
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function MoneySendingPage({ receiverId }: { receiverId: string })
 
     try {
       // Call API to create a transaction
+      setIsLoading(true);
       const response = await fetch('/api/transaction/create', {
         method: 'POST',
         headers: {
@@ -53,9 +55,9 @@ export default function MoneySendingPage({ receiverId }: { receiverId: string })
       }
 
       const data = await response.json();
-
       // Show success toast
       toast({ title: "Money Sent", description: `Successfully sent $${amount} to ${receiverId}` });
+      setIsLoading(false);
 
       if (data) {
         router.push(`/dashboard`); // Client-side navigation
@@ -100,7 +102,9 @@ export default function MoneySendingPage({ receiverId }: { receiverId: string })
               <span>Confirm payment</span>
             </div>
 
-            <Button type="submit" disabled={!isConfirmed} className="w-full">Send Money</Button>
+            <Button type="submit" disabled={!isConfirmed || isLoading} className="w-full">
+              {isLoading ? 'Sending...' : 'Send Money'}
+            </Button>
           </form>
         </CardContent>
       </Card>
