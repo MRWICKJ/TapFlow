@@ -26,6 +26,8 @@ export default function Setup({
   email_id,
 }: PageProps) {
   const [newUsername, setNewUsername] = useState<string>(username);
+  const [newFirstName, setNewFirstName] = useState<string>(first_name);
+  const [newLastName, setNewLastName] = useState<string>(last_name);
   const [amount, setAmount] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isActive, setIsActive] = useState<boolean>(true);
@@ -57,8 +59,8 @@ export default function Setup({
     try {
       const validatedData = createUserSchema.parse({
         user_id,
-        first_name,
-        last_name,
+        first_name: newFirstName,
+        last_name: newLastName,
         username: newUsername,
         email_id,
       });
@@ -176,24 +178,6 @@ export default function Setup({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="first_name">First Name</Label>
-                  <Input
-                    value={first_name}
-                    id="first_name"
-                    readOnly
-                    className="cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="last_name">Last Name</Label>
-                  <Input
-                    value={last_name}
-                    id="last_name"
-                    readOnly
-                    className="cursor-not-allowed"
-                  />
-                </div>
-                <div>
                   <Label htmlFor="email_id">Email ID</Label>
                   <Input
                     value={email_id}
@@ -203,7 +187,24 @@ export default function Setup({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="username">Username (Editable)</Label>
+                  <Label htmlFor="first_name">First Name <span className="text-emerald-500">(Editable)</span></Label>
+                  <Input
+                    value={first_name}
+                    id="first_name"
+                    onChange={(e) => setNewFirstName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="last_name">Last Name <span className="text-emerald-500">(Editable)</span></Label>
+                  <Input
+                    value={last_name}
+                    id="last_name"
+                    onChange={(e) => setNewLastName(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="username">Username <span className="text-emerald-500">(Editable)</span></Label>
                   <Input
                     value={newUsername}
                     id="username"
