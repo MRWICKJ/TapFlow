@@ -13,6 +13,8 @@ interface Transaction {
     amount: number;
     createdAt: string;
     description: string;
+    receiverId: string;
+    senderId: string;
 }
 
 interface ProfileData {
