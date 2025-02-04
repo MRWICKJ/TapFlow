@@ -210,7 +210,7 @@ export default function DashboardModel({ profile }: { profile: Profile }) {
                         </div>
                         <p className="text-sm text-muted-foreground">
                         <span className="text-xs text-muted-foreground">
-                          {isPayer ? `Payer ID: ${tx.senderId}` : `Receiver ID: ${tx.receiverId}`}
+                          {!isPayer ? `Payer ID: ${tx.senderId}` : `Receiver ID: ${tx.receiverId}`}
                         </span>
                         </p>
                       </div>
